@@ -27,6 +27,17 @@ export function initializeDatabase(databasePath: string = config.databasePath): 
       theatre_id INTEGER NOT NULL REFERENCES theatres(id) ON DELETE CASCADE,
       PRIMARY KEY (movie_id, theatre_id)
     );
+    CREATE TABLE IF NOT EXISTS bookings (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      movie_id INTEGER NOT NULL REFERENCES movies(id) ON DELETE RESTRICT,
+      theatre_id INTEGER NOT NULL REFERENCES theatres(id) ON DELETE RESTRICT,
+      seats TEXT NOT NULL,
+      payment_method TEXT NOT NULL CHECK (payment_method IN ('Card', 'UPI')),
+      total_price REAL NOT NULL CHECK (total_price > 0),
+      confirmation_id TEXT NOT NULL UNIQUE,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
   `);
   database.prepare('INSERT OR IGNORE INTO users (mobile_number) VALUES (?)').run('9876543210');
 
