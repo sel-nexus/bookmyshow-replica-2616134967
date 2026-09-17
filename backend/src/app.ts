@@ -4,7 +4,9 @@ import { config } from './config';
 import type { DatabaseSync } from 'node:sqlite';
 import { errorHandler } from './middleware/errorHandler';
 import { AuthService } from './services/authService';
+import { CatalogueService } from './services/catalogueService';
 import { createAuthRouter } from './routes/authRoutes';
+import { createCatalogueRouter } from './routes/catalogueRoutes';
 import { createHealthRouter } from './routes/healthRoutes';
 
 /** Builds the Express application with the production route and middleware order. */
@@ -15,6 +17,7 @@ export function createApp(databaseConnection: InstanceType<typeof DatabaseSync>)
   app.use(express.urlencoded({ extended: true, limit: '16kb' }));
   app.use('/api/health', createHealthRouter());
   app.use('/api/v1/auth', createAuthRouter(new AuthService(databaseConnection)));
+  app.use('/api/v1', createCatalogueRouter(new CatalogueService(databaseConnection)));
   app.use(errorHandler);
   return app;
 }

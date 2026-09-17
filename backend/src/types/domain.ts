@@ -16,6 +16,18 @@ export interface VerifyResponse {
   user: User;
 }
 
+/** Represents a movie available in the catalogue. */
+export interface Movie {
+  id: number;
+  title: string;
+}
+
+/** Represents a theatre available for a movie. */
+export interface Theatre {
+  id: number;
+  name: string;
+}
+
 /** Adds the authenticated user to Express requests after middleware succeeds. */
 declare global {
   namespace Express {
