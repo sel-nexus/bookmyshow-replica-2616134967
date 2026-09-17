@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 dotenv.config();
 
-const environmentSchema = z.object({
+export const environmentSchema = z.object({
   PORT: z.coerce.number().int().positive().default(4000),
   CORS_ORIGIN: z.string().min(1).default('http://localhost:3000'),
   DATABASE_PATH: z.string().min(1).default('./data/bookmyshow.sqlite'),
