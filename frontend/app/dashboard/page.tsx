@@ -41,7 +41,10 @@ export default function DashboardPage() {
   return (
     <main className="page-shell">
       <header className="site-header">
-        <Link className="brand" href="/"><span className="brand-mark">B</span><span>bookmyshow replica</span></Link>
+        <Link className="brand" href="/">
+          <span className="brand-mark">B</span>
+          <span>bookmyshow replica</span>
+        </Link>
         <span className="header-note">Welcome, {user.mobileNumber}</span>
       </header>
       <section className="hero" aria-labelledby="dashboard-heading">
@@ -50,7 +53,10 @@ export default function DashboardPage() {
           <h1 id="dashboard-heading">Choose your story.</h1>
           <p className="hero-copy">Browse what is playing, then pick a theatre for your night out.</p>
         </div>
-        <div className="focal-panel" aria-label="Catalogue introduction"><span className="panel-kicker">BookMyShow Replica</span><h2>Big screen plans, starting with one good choice.</h2></div>
+        <div className="focal-panel" aria-label="Catalogue introduction">
+          <span className="panel-kicker">BookMyShow Replica</span>
+          <h2>Big screen plans, starting with one good choice.</h2>
+        </div>
       </section>
       <section className="welcome" aria-labelledby="movies-heading">
         <span className="eyebrow">Now showing</span>
@@ -58,7 +64,13 @@ export default function DashboardPage() {
         {status === 'loading' && <CatalogueState status="loading" />}
         {status === 'error' && <CatalogueState status="error" message={error} onRetry={() => void loadMovies()} />}
         {status === 'empty' && <CatalogueState status="empty" />}
-        {status === 'ready' && <div className="panel-list">{movies.map((movie) => <MovieCard key={movie.id} movie={movie} />)}</div>}
+        {status === 'ready' && (
+          <div className="panel-list">
+            {movies.map((movie) => (
+              <MovieCard key={movie.id} movie={movie} />
+            ))}
+          </div>
+        )}
       </section>
     </main>
   );

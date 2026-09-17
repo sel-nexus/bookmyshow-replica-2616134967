@@ -1,0 +1,35 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    environment:
+      PORT: "4000"
+      CORS_ORIGIN: "http://localhost:3000"
+      DATABASE_PATH: "/app/data/bookmyshow.sqlite"
+      JWT_SECRET: "bookmyshow-compose-secret-change-me"
+      JWT_ISSUER: "bookmyshow-replica"
+      JWT_AUDIENCE: "bookmyshow-web"
+    volumes:
+      - booking-data:/app/data
+    ports:
+      - "4000:4000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4000/api/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  frontend:
+    build:
+      context: ./frontend
+    environment:
+      BACKEND_URL: "http://backend:4000"
+      NEXT_PUBLIC_API_URL: ""
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+
+volumes:
+  booking-data:

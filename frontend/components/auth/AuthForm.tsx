@@ -2,7 +2,7 @@
 
 import React, { useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { login, verify } from '../../lib/apiClient';
+import { ApiError, login, verify } from '../../lib/apiClient';
 import { saveMobileNumber } from '../../lib/auth';
 import { useAuth } from './AuthProvider';
 
@@ -45,7 +45,11 @@ export function AuthForm({ mode, initialMobileNumber = '' }: AuthFormProps) {
         router.push('/');
       }
     } catch (submissionError) {
-      setError(submissionError instanceof Error ? submissionError.message : 'Something went wrong.');
+      if (submissionError instanceof ApiError) {
+        setError(submissionError.message);
+      } else {
+        setError(submissionError instanceof Error ? submissionError.message : 'Something went wrong.');
+      }
     } finally {
       setIsSubmitting(false);
     }

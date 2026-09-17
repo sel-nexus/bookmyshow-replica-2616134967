@@ -34,6 +34,48 @@ export class BookingServiceError extends Error {
 export class BookingService {
   public constructor(private readonly database: InstanceType<typeof DatabaseSync>) {}
 
+  /** Retrieves one booking only when it belongs to the authenticated user. */
+  public getBookingByConfirmationId(confirmationId: string, userId: number): Booking {
+    const row = this.database.prepare(`
+      SELECT
+        b.id,
+        b.confirmation_id AS confirmationId,
+        b.seats,
+        b.payment_method AS paymentMethod,
+        b.total_price AS totalPrice,
+        m.id AS movieId,
+        m.title AS movieTitle,
+        t.id AS theatreId,
+        t.name AS theatreName
+      FROM bookings b
+      INNER JOIN movies m ON m.id = b.movie_id
+      INNER JOIN theatres t ON t.id = b.theatre_id
+      WHERE b.confirmation_id = ? AND b.user_id = ?
+    `).get(confirmationId, userId) as {
+      id: number;
+      confirmationId: string;
+      seats: string;
+      paymentMethod: PaymentMethod;
+      totalPrice: number;
+      movieId: number;
+      movieTitle: string;
+      theatreId: number;
+      theatreName: string;
+    } | undefined;
+
+    if (!row) throw new BookingServiceError('Booking was not found', 404);
+
+    return {
+      id: row.id,
+      confirmationId: row.confirmationId,
+      movie: { id: row.movieId, title: row.movieTitle },
+      theatre: { id: row.theatreId, name: row.theatreName },
+      seats: JSON.parse(row.seats) as string[],
+      paymentMethod: row.paymentMethod,
+      totalPrice: row.totalPrice
+    };
+  }
+
   /** Creates one booking for the authenticated user after validating all references. */
   public createBooking(input: CreateBookingInput): Booking {
     const user = this.database.prepare('SELECT id FROM users WHERE id = ?').get(input.userId) as { id: number } | undefined;

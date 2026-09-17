@@ -53,15 +53,74 @@ export function PaymentForm({ onSubmit }: PaymentFormProps) {
       </fieldset>
       {paymentMethod === 'Card' ? (
         <>
-          <div className="field-group"><label htmlFor="card-number">Card Number</label><input id="card-number" name="cardNumber" inputMode="numeric" autoComplete="cc-number" value={cardNumber} onChange={(event) => { setCardNumber(event.target.value); setError(''); }} aria-required="true" /></div>
-          <div className="field-group"><label htmlFor="expiry-date">Expiry Date</label><input id="expiry-date" name="expiryDate" placeholder="MM/YY" autoComplete="cc-exp" value={expiryDate} onChange={(event) => { setExpiryDate(event.target.value); setError(''); }} aria-required="true" /></div>
-          <div className="field-group"><label htmlFor="cvv">CVV</label><input id="cvv" name="cvv" inputMode="numeric" autoComplete="cc-csc" value={cvv} onChange={(event) => { setCvv(event.target.value); setError(''); }} aria-required="true" /></div>
+          <div className="field-group">
+            <label htmlFor="card-number">Card Number</label>
+            <input
+              id="card-number"
+              name="cardNumber"
+              inputMode="numeric"
+              autoComplete="cc-number"
+              value={cardNumber}
+              onChange={(event) => {
+                setCardNumber(event.target.value);
+                setError('');
+              }}
+              aria-required="true"
+            />
+          </div>
+          <div className="field-group">
+            <label htmlFor="expiry-date">Expiry Date</label>
+            <input
+              id="expiry-date"
+              name="expiryDate"
+              placeholder="MM/YY"
+              autoComplete="cc-exp"
+              value={expiryDate}
+              onChange={(event) => {
+                setExpiryDate(event.target.value);
+                setError('');
+              }}
+              aria-required="true"
+            />
+          </div>
+          <div className="field-group">
+            <label htmlFor="cvv">CVV</label>
+            <input
+              id="cvv"
+              name="cvv"
+              inputMode="numeric"
+              autoComplete="cc-csc"
+              value={cvv}
+              onChange={(event) => {
+                setCvv(event.target.value);
+                setError('');
+              }}
+              aria-required="true"
+            />
+          </div>
         </>
       ) : (
-        <div className="field-group"><label htmlFor="upi-id">UPI ID</label><input id="upi-id" name="upiId" placeholder="user@upi" autoComplete="off" value={upiId} onChange={(event) => { setUpiId(event.target.value); setError(''); }} aria-required="true" /><span className="field-hint">Example: user@upi</span></div>
+        <div className="field-group">
+          <label htmlFor="upi-id">UPI ID</label>
+          <input
+            id="upi-id"
+            name="upiId"
+            placeholder="user@upi"
+            autoComplete="off"
+            value={upiId}
+            onChange={(event) => {
+              setUpiId(event.target.value);
+              setError('');
+            }}
+            aria-required="true"
+          />
+          <span className="field-hint">Example: user@upi</span>
+        </div>
       )}
       {error && <p className="form-error" role="alert">{error}</p>}
-      <button className="primary-button" type="submit" disabled={isProcessing} aria-busy={isProcessing}>{isProcessing ? 'Processing Payment...' : 'Pay & confirm'}</button>
+      <button className="primary-button" type="submit" disabled={isProcessing} aria-busy={isProcessing}>
+        {isProcessing ? 'Processing Payment...' : 'Pay & confirm'}
+      </button>
     </form>
   );
 }

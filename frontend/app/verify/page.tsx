@@ -16,7 +16,17 @@ export default function VerifyPage() {
         <div><h1 id="verify-aside-heading">One small step. Then curtain up.</h1><p>Your secure access code keeps the journey simple and personal.</p></div>
       </section>
       <section className="auth-content" aria-labelledby="verify-heading">
-        <div className="auth-card"><span className="eyebrow">Final check</span><h2 id="verify-heading">Enter your OTP.</h2><p>Use the four-digit code sent to {mobileNumber || 'your mobile number'}.</p><AuthForm mode="verify" initialMobileNumber={mobileNumber} /><Link className="back-link" href="/login">← Change mobile number</Link></div>
+        <div className="auth-card">
+          <span className="eyebrow">Final check</span>
+          <h2 id="verify-heading">Enter your OTP.</h2>
+          <p>Use the four-digit code sent to {mobileNumber || 'your mobile number'}.</p>
+          {mobileNumber ? (
+            <AuthForm mode="verify" initialMobileNumber={mobileNumber} />
+          ) : (
+            <p role="status">Loading your verification details...</p>
+          )}
+          <Link className="back-link" href="/login">← Change mobile number</Link>
+        </div>
       </section>
     </main>
   );

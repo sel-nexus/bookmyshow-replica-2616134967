@@ -85,4 +85,26 @@ describe('catalogue HTTP API', () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({ error: 'movieId must be a positive integer' });
   });
+
+  it.each(['0', '-1', '1.5', '', 'abc', "1 OR 1=1", '<script>alert(1)</script>', '../../etc/passwd'])
+  ('rejects unsafe or non-positive movieId query values %# with no database mutation', async (movieId) => {
+    const app = createApp(database);
+    const token = await getAuthToken(app);
+    const before = database.prepare('SELECT COUNT(*) AS count FROM movie_theatres').get();
+    const response = await request(app).get(`/api/v1/theatres?movieId=${encodeURIComponent(movieId)}`).set('Authorization', `Bearer ${token}`);
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'movieId must be a positive integer' });
+    expect(database.prepare('SELECT COUNT(*) AS count FROM movie_theatres').get()).toEqual(before);
+  });
+
+  it('rejects invalid and unknown authorization tokens with explicit bodies', async () => {
+    const app = createApp(database);
+    const invalid = await request(app).get('/api/v1/movies').set('Authorization', 'Bearer not-a-jwt');
+    expect(invalid.status).toBe(401);
+    expect(invalid.body).toEqual({ error: 'Invalid or expired token' });
+
+    const unknown = await request(app).get('/api/v1/movies').set('Authorization', 'Bearer ../../etc/passwd');
+    expect(unknown.status).toBe(401);
+    expect(unknown.body).toEqual({ error: 'Invalid or expired token' });
+  });
 });

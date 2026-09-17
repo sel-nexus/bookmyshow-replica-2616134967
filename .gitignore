@@ -16,3 +16,7 @@ test_report.yaml
 graphify-out/cache/
 graphify-out/cost.json
 backend/data/
+frontend/test-results/
+frontend/tsconfig.tsbuildinfo
+frontend/.next/
+frontend/test-results/

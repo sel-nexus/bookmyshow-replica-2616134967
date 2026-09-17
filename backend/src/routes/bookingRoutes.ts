@@ -11,9 +11,29 @@ const bookingSchema = z.object({
   totalPrice: z.number().finite().positive()
 }).strict();
 
+const confirmationIdSchema = z.string().regex(/^BMS-[A-Z0-9]{12}$/, 'Invalid confirmation ID');
+
 /** Creates the authenticated booking endpoint for the checkout confirmation flow. */
 export function createBookingRouter(bookingService: BookingService): Router {
   const router = Router();
+  router.get('/bookings/:confirmationId', requireAuth, (req: Request, res: Response, next: NextFunction): void => {
+    try {
+      const user = req.user;
+      if (!user) {
+        res.status(401).json({ error: 'Authentication required' });
+        return;
+      }
+      const confirmationId = confirmationIdSchema.parse(req.params.confirmationId);
+      const booking = bookingService.getBookingByConfirmationId(confirmationId, user.id);
+      res.status(200).json({ booking });
+    } catch (error) {
+      if (error instanceof BookingServiceError) {
+        res.status(error.statusCode).json({ error: error.message });
+        return;
+      }
+      next(error);
+    }
+  });
   router.post('/bookings', requireAuth, (req: Request, res: Response, next: NextFunction): void => {
     try {
       const user = req.user;

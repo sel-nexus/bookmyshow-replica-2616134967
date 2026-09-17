@@ -28,7 +28,9 @@ export function SeatGrid({ onSelectionChange }: SeatGridProps) {
       <div role="grid" aria-label="Cinema seat map" style={{ display: 'grid', gap: 8, marginTop: 20 }}>
         {rows.map((row) => (
           <div key={row} role="row" style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <span aria-hidden="true" style={{ width: 20, fontWeight: 700 }}>{row}</span>
+            <span aria-hidden="true" style={{ width: 20, fontWeight: 700 }}>
+              {row}
+            </span>
             {Array.from({ length: seatsPerRow }, (_, index) => `${row}${index + 1}`).map((seat) => {
               const selected = selectedSeats.includes(seat);
               return (
@@ -49,7 +51,9 @@ export function SeatGrid({ onSelectionChange }: SeatGridProps) {
         ))}
       </div>
       <p role="status" aria-live="polite" style={{ marginTop: 18 }}>
-        {selectedSeats.length ? `${selectedSeats.join(', ')} · Rs. ${selectedSeats.length * pricePerSeat}` : 'No seats selected'}
+        {selectedSeats.length
+          ? `${selectedSeats.join(', ')} · Rs. ${selectedSeats.length * pricePerSeat}`
+          : 'No seats selected'}
       </p>
     </fieldset>
   );

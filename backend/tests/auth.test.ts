@@ -100,3 +100,56 @@ describe('authentication HTTP API', () => {
     expect(authorized.body.user.mobileNumber).toBe('9123456789');
   });
 });
+
+describe('authentication request boundary coverage', () => {
+  beforeEach(() => {
+    database = createTestDatabase();
+  });
+
+  it.each([
+    {},
+    { mobileNumber: '' },
+    { mobileNumber: null },
+    { mobileNumber: 9123456789 },
+    { mobileNumber: '912345678' },
+    { mobileNumber: '91234567890' },
+    { mobileNumber: "9123456789' OR '1'='1" },
+    { mobileNumber: '<script>alert(1)</script>' },
+    { mobileNumber: '../../etc/passwd' }
+  ])('rejects invalid login payload %# with an explicit error body', async (payload) => {
+    const response = await request(createApp(database)).post('/api/v1/auth/login').send(payload);
+    expect(response.status).toBe(400);
+    expect(response.body.error).toBe('Invalid request body');
+    expect(database.prepare('SELECT COUNT(*) AS count FROM users').get()).toEqual({ count: 1 });
+  });
+
+  it.each([
+    {},
+    { mobileNumber: '9123456789' },
+    { otp: '1234' },
+    { mobileNumber: '', otp: '1234' },
+    { mobileNumber: '9123456789', otp: '' },
+    { mobileNumber: '9123456789', otp: null },
+    { mobileNumber: 9123456789, otp: '1234' },
+    { mobileNumber: '9123456789', otp: 1234 },
+    { mobileNumber: '9123456789', otp: '1234', redirect: '/admin' },
+    { mobileNumber: '9123456789', otp: '<script>alert(1)</script>' },
+    { mobileNumber: '9123456789', otp: "' OR 1=1 --" }
+  ])('rejects invalid verify payload %# without issuing a token', async (payload) => {
+    const response = await request(createApp(database)).post('/api/v1/auth/verify').send(payload);
+    expect(response.status).toBe(400);
+    expect(response.body.error).toBe('Invalid request body');
+    expect(response.body.token).toBeUndefined();
+    expect(database.prepare('SELECT COUNT(*) AS count FROM users').get()).toEqual({ count: 1 });
+  });
+
+  it('rejects an oversized JSON body with an explicit non-success response', async () => {
+    const response = await request(createApp(database))
+      .post('/api/v1/auth/login')
+      .set('Content-Type', 'application/json')
+      .send(JSON.stringify({ mobileNumber: '9123456789', padding: 'x'.repeat(17 * 1024) }));
+    expect(response.status).toBe(500);
+    expect(response.body).toEqual({ error: 'request entity too large' });
+    expect(database.prepare('SELECT COUNT(*) AS count FROM users').get()).toEqual({ count: 1 });
+  });
+});
